@@ -21,24 +21,22 @@ pip install roboflow
 
 ## Proje Adımları
 
-### 1. Veri Setinin İndirilmesi
+### 1. Çalışma Dizininin Belirlenmesi
 
-Roboflow kullanarak, jant çatlaklarını tespit etmek için eğitim verisi indirildi.
+Mevcut çalışma dizinini belirlemek için aşağıdaki kodu kullanalım.
 
 ```python
-from roboflow import Roboflow
-rf = Roboflow(api_key="YOUR_API_KEY")
-project = rf.workspace("university-bswxt").project("crack-bphdr")
-version = project.version(2)
-dataset = version.download("yolov8")
+import os
+HOME = os.getcwd()
+print(HOME)
 ```
 
-### 2. Modelin Eğitilmesi
+### 2. Gerekli Kütüphanenin Yüklenmesi
 
-YOLOv8 modelini segmentasyon görevine uygun şekilde eğitmek için aşağıdaki komut kullanıldı:
+Projede kullanılacak olan ultralytics kütüphanesini yüklemek için aşağıdaki komutu kullanalım.
 
 ```python
-yolo task=segment mode=train model=yolov8s-seg.pt data=/content/crack-2/data.yaml epochs=24 imgsz=640 plots=True
+!pip install ultralytics
 ```
 
 
@@ -50,6 +48,62 @@ Eğitim sonuçlarını görselleştirmek için aşağıdaki komut kullanıldı:
 Image(filename=f'{HOME}/runs/segment/train2/results.png', width=800)
 ```
 
+### 3. Çıktının Temizlenmesi ve Kütüphanenin Kontrolü
+
+Çalışma ortamındaki çıktıyı temizlemek ve ultralytics kütüphanesinin doğru şekilde kurulup kurulmadığını kontrol etmek için aşağıdaki kodu kullanalım.
+
+```python
+from IPython import display
+display.clear_output()
+
+import ultralytics
+ultralytics.checks()
+
+```
+
+### 4. YOLO Modelinin İçe Aktarılması
+
+YOLO modelini ve görüntüleri göstermek için gerekli kütüphaneleri içe aktaralım.
+
+```python
+from ultralytics import YOLO
+from IPython.display import display, Image
+```
+
+### 5. Roboflow Kütüphanesinin Yüklenmesi ve Veri Setinin İndirilmesi
+
+Roboflow kütüphanesini yükleyip, eğitim verisini indirmek için aşağıdaki adımları kullanalım.
+
+```python
+!pip install roboflow
+from roboflow import Roboflow
+rf = Roboflow(api_key="egchH4Y73wxoB1ArLk4w")
+project = rf.workspace("university-bswxt").project("crack-bphdr")
+version = project.version(2)
+dataset = version.download("yolov8")
+```
+
+
+### 6. Model Eğitiminin Başlatılması
+
+Model eğitimini başlatmak için aşağıdaki komutu kullanalım. Bu komut, yolov8s-seg.pt modelini kullanarak segmentasyon görevini başlatır.
+
+```python
+%cd {HOME}
+!yolo task=segment mode=train model=yolov8s-seg.pt data=/content/crack-2/data.yaml epochs=24 imgsz=640 plots=True #yolov8s-seg.pt, yolov8s.pt segment, detect
+```
+
+
+### 7. Eğitim Sonuçlarının Görselleştirilmesi
+
+Eğitim sırasında oluşan karışıklık matrisi görselini görüntülemek için aşağıdaki kodu kullanalım.
+
+```python
+%cd {HOME}
+Image(filename=f'{HOME}/runs/segment/train2/confusion_matrix.png', width=800)
+```
+![matris](https://github.com/user-attachments/assets/22e9ee53-04b5-426a-aa4c-3b421fff66d7)
+
 ## Sonuçlar
 
 - **1.Jant:**
@@ -60,3 +114,6 @@ Image(filename=f'{HOME}/runs/segment/train2/results.png', width=800)
 - **2.Jant:**
   
   ![jant 2](https://github.com/user-attachments/assets/5da3a8fb-f99b-478e-b52e-bf6ed9154c39)
+
+
+**Uyarı:** Bu kodlar Google Colab ortamında çalışacak şekilde tasarlanmıştır. Çalıştırmak için bu ortamda olmanız gerekmektedir. Farklı bir ortamda çalıştırılması durumunda, bazı yollar ve dosya erişimleri düzgün şekilde çalışmayabilir.
